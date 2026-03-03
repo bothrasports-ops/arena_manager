@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 import {
   PlusCircle,
   List,
-  Settings as SettingsIcon,
+  Package,
+  LayoutDashboard,
   LogOut,
   Trophy,
   RefreshCw,
@@ -11,13 +12,14 @@ import {
 } from 'lucide-react';
 import BookingForm from './components/BookingForm';
 import BookingList from './components/BookingList';
-import Settings from './components/Settings';
+import Inventory from './components/Inventory';
+import Dashboard from './components/Dashboard';
 import LoginForm from './components/LoginForm';
 import { AppState, Booking, DrinkInventoryItem } from './types';
 import { supabase } from './lib/supabase';
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'new' | 'list' | 'settings'>('new');
+  const [activeTab, setActiveTab] = useState<'new' | 'list' | 'inventory' | 'dashboard'>('new');
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [appState, setAppState] = useState<AppState>(() => {
@@ -166,6 +168,12 @@ const App: React.FC = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           <nav className="hidden lg:flex flex-col gap-1 w-64 shrink-0">
             <NavButton
+              active={activeTab === 'dashboard'}
+              onClick={() => setActiveTab('dashboard')}
+              icon={<LayoutDashboard className="w-5 h-5" />}
+              label="Dashboard"
+            />
+            <NavButton
               active={activeTab === 'new'}
               onClick={() => setActiveTab('new')}
               icon={<PlusCircle className="w-5 h-5" />}
@@ -178,10 +186,10 @@ const App: React.FC = () => {
               label="All Bookings"
             />
             <NavButton
-              active={activeTab === 'settings'}
-              onClick={() => setActiveTab('settings')}
-              icon={<SettingsIcon className="w-5 h-5" />}
-              label="Settings & Database"
+              active={activeTab === 'inventory'}
+              onClick={() => setActiveTab('inventory')}
+              icon={<Package className="w-5 h-5" />}
+              label="Inventory"
             />
           </nav>
 
@@ -192,6 +200,12 @@ const App: React.FC = () => {
               </div>
             ) : (
               <>
+                {activeTab === 'dashboard' && (
+                  <Dashboard
+                    bookings={appState.bookings}
+                    inventory={appState.inventory}
+                  />
+                )}
                 {activeTab === 'new' && (
                   <BookingForm
                     onSave={refreshData}
@@ -204,8 +218,8 @@ const App: React.FC = () => {
                     inventory={appState.inventory}
                   />
                 )}
-                {activeTab === 'settings' && (
-                  <Settings
+                {activeTab === 'inventory' && (
+                  <Inventory
                     inventory={appState.inventory}
                     bookings={appState.bookings}
                     onUpdate={refreshData}
@@ -218,9 +232,10 @@ const App: React.FC = () => {
       </main>
 
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex items-center justify-around py-2 z-20">
+        <MobileNavButton active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} icon={<LayoutDashboard className="w-6 h-6" />} label="Dashboard" />
         <MobileNavButton active={activeTab === 'new'} onClick={() => setActiveTab('new')} icon={<PlusCircle className="w-6 h-6" />} label="New" />
         <MobileNavButton active={activeTab === 'list'} onClick={() => setActiveTab('list')} icon={<List className="w-6 h-6" />} label="Bookings" />
-        <MobileNavButton active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} icon={<SettingsIcon className="w-6 h-6" />} label="Settings" />
+        <MobileNavButton active={activeTab === 'inventory'} onClick={() => setActiveTab('inventory')} icon={<Package className="w-6 h-6" />} label="Inventory" />
       </nav>
       <div className="lg:hidden h-16" />
     </div>
